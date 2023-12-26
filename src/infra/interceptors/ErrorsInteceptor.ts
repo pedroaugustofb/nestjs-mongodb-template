@@ -7,26 +7,39 @@ import {
   NestInterceptor,
   UnauthorizedException,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { catchError, Observable } from 'rxjs';
 
+const VALIDATION_PIPE = 'validation-pipe';
 // this interceptor will catch all the exceptions and return a 500 error
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
   private logger = new Logger();
 
-  intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
+  // this method will check if the error is a validation-pipe error
+  private isValidationError = (error: HttpException) =>
+    error instanceof BadRequestException && error.getResponse()['source'] === VALIDATION_PIPE;
+
+  // this method will create the log message
+  private createLogMessage(context: ExecutionContext, error: HttpException): string {
+    const { url, method } = context.switchToHttp().getRequest();
+    let log_message = `interceptor > exception > internal server error when trying to access the route: ${url} (method: ${method})`;
+
+    if (this.isValidationError(error)) log_message += ` > validation-pipe error: ${error.getResponse()['erros'].join('; ')}.`;
+
+    return log_message;
+  }
+
+  // this method intercept any error from the application
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error: HttpException) => {
-        this.logger.error(
-          `interceptor > exception > internal server error when trying to access the route: ${
-            _.switchToHttp().getRequest().url
-          } (method: ${_.switchToHttp().getRequest().method})`,
-        );
+        const log_message = this.createLogMessage(context, error);
 
-        // for login exception
-        if (error instanceof UnauthorizedException)
-          throw new UnauthorizedException();
+        this.logger.error(log_message);
+        if (error instanceof UnauthorizedException) throw new UnauthorizedException();
+        if (this.isValidationError(error)) throw error;
 
         throw new InternalServerErrorException();
       }),
