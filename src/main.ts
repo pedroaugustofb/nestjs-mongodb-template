@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new CustomValidationPipe());
 
   //doc config by swagger, the url is http://localhost:8080/docs
-  const config = new DocumentBuilder().setTitle('API doc').setVersion('1.0').build();
+  const config = new DocumentBuilder().setTitle('API title').setDescription('API Description').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 

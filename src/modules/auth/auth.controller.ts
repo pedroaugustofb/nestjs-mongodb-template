@@ -1,5 +1,5 @@
 import { Body, Controller, Logger, Post, Res } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import AuthService from './auth.service';
 import { LoginDto } from './types/login.dto';
 
@@ -12,6 +12,8 @@ export default class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Try to login an user.' })
+  @ApiResponse({ status: 200, description: 'User logged in successfully.' })
+  @ApiResponse({ status: 404, description: 'Bad Request.' })
   async login(@Res() response, @Body() login: LoginDto) {
     try {
       this.logger.log(`loggin user > ${login.email}`);
