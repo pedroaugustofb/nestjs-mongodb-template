@@ -23,6 +23,6 @@ async function bootstrap() {
   const logger = new Logger();
 
   // start the app
-  await app.listen(port, () => logger.verbose(`Server is running on: ${port}`));
+  await app.listen(port, () => logger.debug(`Server is running on: ${port}`));
 }
 bootstrap();
