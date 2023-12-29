@@ -3,6 +3,9 @@ import { HydratedDocument } from 'mongoose';
 
 @Schema()
 export class User {
+  @Prop({ autopopulate: true })
+  _id: string;
+
   @Prop()
   name: string;
 
