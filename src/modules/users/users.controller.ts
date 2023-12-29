@@ -15,26 +15,16 @@ export default class UsersController {
   @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async createUser(@Res() response, @Body() user: CreateUserDto) {
-    try {
-      // log the request
-      this.logger.log(`creating user > user name: ${user.name}`);
+    // log the request
+    this.logger.log(`creating user > user name: ${user.name}`);
 
-      // create the user
-      const createdUser = await this.usersService.createUser(user);
+    // create the user
+    const createdUser = await this.usersService.createUser(user);
 
-      return response.status(HttpStatus.CREATED).json({
-        status: 201,
-        message: 'User has been created successfully',
-        createdUser,
-      });
-    } catch (error) {
-      // log the error
-      this.logger.error(`error while creating user > ${error}`);
-      return response.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: User not created!',
-        error: 'Bad Request',
-        status: 400,
-      });
-    }
+    return response.status(HttpStatus.CREATED).json({
+      status: 201,
+      message: 'User has been created successfully',
+      createdUser,
+    });
   }
 }
